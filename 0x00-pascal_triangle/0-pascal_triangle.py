@@ -1,26 +1,27 @@
 #!/usr/bin/python3
 """Pascal Triangle Interview Challenge"""
 def pascal_triangle(n):
-    if n <= 0:
-        return []
+  """Returns a list of lists of integers representing the Pascal’s triangle of `n`.
+  Returns an empty list if `n <= 0`.
 
-    triangle = [[1]]
+  Args:
+    n: An integer.
 
-    for i in range(1, n):
-        prev_row = triangle[-1]
-        new_row = [1]
+  Returns:
+    A list of lists of integers, representing the Pascal’s triangle of `n`.
+  """
 
-        for j in range(1, i):
-            new_row.append(prev_row[j - 1] + prev_row[j])
+  if n <= 0:
+    return []
 
-        new_row.append(1)
-        triangle.append(new_row)
+  triangle = [[1]]
+  for i in range(1, n):
+    row = [0] * (i + 1)
+    for j in range(i + 1):
+      if j == 0 or j == i:
+        row[j] = 1
+      else:
+        row[j] = triangle[i - 1][j - 1] + triangle[i - 1][j]
+    triangle.append(row)
+  return triangle
 
-    return triangle
-
-def print_triangle(triangle):
-    for row in triangle:
-        print("[{}]".format(",".join([str(x) for x in row])))
-
-if __name__ == "__main__":
-    print_triangle(pascal_triangle(5))
