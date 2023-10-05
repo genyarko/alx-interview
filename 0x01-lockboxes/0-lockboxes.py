@@ -1,22 +1,22 @@
-#!/usr/bin/env python3
-'''Lockbox
-'''
-from typing import List
+#!/usr/bin/python3
 
-def canUnlockAll(boxes: List[List[int]]) -> bool:
-    if not boxes or not isinstance(boxes, list):
-        return False
+def canUnlockAll(boxes):
+  """Determines if all the boxes can be opened.
 
-    n = len(boxes)
-    visited = [False] * n
-    visited[0] = True
-    stack = [0]
+  Args:
+    boxes: A list of lists, where each inner list contains the keys to open the
+      corresponding box.
 
-    while stack:
-        current_box = stack.pop()
-        for key in boxes[current_box]:
-            if isinstance(key, int) and 0 <= key < n and not visited[key]:
-                visited[key] = True
-                stack.append(key)
+  Returns:
+    True if all the boxes can be opened, False otherwise.
+  """
 
-    return all(visited)
+  unlocked = set([0])
+  queue = [0]
+  while queue:
+    box = queue.pop(0)
+    for key in boxes[box]:
+      if key not in unlocked:
+        unlocked.add(key)
+        queue.append(key)
+  return len(unlocked) == len(boxes)
