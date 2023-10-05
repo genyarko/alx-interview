@@ -2,10 +2,8 @@
 '''A module for working with lockboxes.
 '''
 
-from typing import List
-
-def canUnlockAll(boxes: List[List[int]]) -> bool:
-    '''Checks if all the boxes in a list of boxes containing the keys
+def canUnlockAll(boxes):
+       '''Checks if all the boxes in a list of boxes containing the keys
      to other boxes can be unlocked given that the first box is unlocked.
 
     Args:
