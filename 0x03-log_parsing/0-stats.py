@@ -1,43 +1,32 @@
 #!/usr/bin/python3
-import sys
+'''A script for parsing HTTP request logs.
+'''
+import fileinput
+import os
 
-# Initialize variables
+status_codes = {200: 0, 301: 0, 400: 0, 401: 0, 403: 0, 404: 0, 405: 0, 500: 0}
 total_size = 0
-status_codes = {}
+line_count = 0
 
 try:
-    for i, line in enumerate(sys.stdin):
-        # Parse line
-        try:
-            ip, _, _, path, status_code, file_size = line.split()
-            file_size = int(file_size)
-            status_code = int(status_code)
-        except ValueError:
-            # Skip line if format is incorrect
-            continue
-
-        # Update total file size
-        total_size += file_size
-
-        # Update status code count
-        if status_code in status_codes:
-            status_codes[status_code] += 1
-        else:
-            status_codes[status_code] = 1
-
-        # Print statistics every 10 lines or on keyboard interruption
-        if (i + 1) % 10 == 0:
-            print(f"Total file size: {total_size}")
+    for line in fileinput.input():
+        line_count += 1
+        if line_count % 10 == 0:
+            print(f"File size: {total_size}")
             for code in sorted(status_codes.keys()):
-                print(f"{code}: {status_codes[code]}")
-
+                if status_codes[code] > 0:
+                    print(f"{code}: {status_codes[code]}")
+        try:
+            ip, _, _, request, status, size = line.split()
+            if request.startswith("GET /projects/260 HTTP/1.1") and status.isdigit():
+                status = int(status)
+                if status in status_codes:
+                    status_codes[status] += 1
+                total_size += int(size)
+        except ValueError:
+            pass
 except KeyboardInterrupt:
-    print(f"Total file size: {total_size}")
+    print(f"File size: {total_size}")
     for code in sorted(status_codes.keys()):
-        print(f"{code}: {status_codes[code]}")
-    sys.exit(0)
-
-# Print final statistics
-print(f"Total file size: {total_size}")
-for code in sorted(status_codes.keys()):
-    print(f"{code}: {status_codes[code]}")
+        if status_codes[code] > 0:
+            print(f"{code}: {status_codes[code]}")
