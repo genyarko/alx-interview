@@ -1,37 +1,47 @@
 #!/usr/bin/python3
-
 import sys
 
+# Initialize variables
 total_size = 0
-status_codes = {'200': 0, '301': 0, '400': 0, '401': 0, '403': 0, '404': 0, '405': 0, '500': 0}
+status_codes = {}
 
-try:
-    for line_number, line in enumerate(sys.stdin, start=1):
-        elements = line.split()
+# Loop through stdin
+for i, line in enumerate(sys.stdin):
+    # Parse line
+    try:
+        ip, _, _, path, status_code, file_size = line.split()
+        file_size = int(file_size)
+        status_code = int(status_code)
+    except ValueError:
+        # Skip line if format is incorrect
+        continue
+    
+    # Update total file size
+    total_size += file_size
+    
+    # Update status code count
+    if status_code in status_codes:
+        status_codes[status_code] += 1
+    else:
+        status_codes[status_code] = 1
+    
+    # Print statistics every 10 lines or on keyboard interruption
+    if (i + 1) % 10 == 0:
+        print(f"Total file size: {total_size}")
+        for code in sorted(status_codes.keys()):
+            print(f"{code}: {status_codes[code]}")
+    
+    # Handle keyboard interruption
+    try:
+        sys.stdin.flush()
+    except KeyboardInterrupt:
+        print(f"Total file size: {total_size}")
+        for code in sorted(status_codes.keys()):
+            print(f"{code}: {status_codes[code]}")
+        sys.exit(0)
 
-        # Check if the line matches the expected format
-        if len(elements) >= 9:
-            status_code = elements[-2]
-            file_size = int(elements[-1)
-
-            # Update total file size
-            total_size += file_size
-
-            # Update status code count
-            if status_code in status_codes:
-                status_codes[status_code] += 1
-
-        if line_number % 10 == 0:
-            print(f"File size: {total_size}")
-            for code, count in sorted(status_codes.items()):
-                if count > 0:
-                    print(f"{code}: {count}")
-
-except KeyboardInterrupt:
-    pass  # Handle keyboard interruption gracefully
-
-finally:
-    print(f"File size: {total_size}")
-    for code, count in sorted(status_codes.items()):
-        if count > 0:
-            print(f"{code}: {count}")
+# Print final statistics
+print(f"Total file size: {total_size}")
+for code in sorted(status_codes.keys()):
+    print(f"{code}: {status_codes[code]}")
+    
