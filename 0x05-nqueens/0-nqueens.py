@@ -12,17 +12,14 @@ def get_input():
     if len(sys.argv) != 2:
         print("Usage: nqueens N")
         sys.exit(1)
-    
     try:
         n = int(sys.argv[1])
     except ValueError:
         print("N must be a number")
         sys.exit(1)
-    
     if n < 4:
         print("N must be at least 4")
         sys.exit(1)
-    
     return n
 
 def is_attacking(pos0, pos1):
@@ -37,10 +34,10 @@ def is_attacking(pos0, pos1):
     """
     row0, col0 = pos0
     row1, col1 = pos1
-    return (row0 == row1) or (col0 == col1) or (abs(row0 - row1) == abs(col0 - col1))
+    return row0 == row1 or col0 == col1 or abs(row0 - row1) == abs(col0 - col1)
 
 def build_solutions(n):
-    """Finds all solutions for the N-Queens problem.
+    """Builds all solutions for the N-Queens problem using backtracking.
 
     Args:
         n (int): The size of the chessboard.
@@ -50,12 +47,11 @@ def build_solutions(n):
     """
     def build_solution(row, current_solution):
         if row == n:
-            solutions.append(current_solution[:])
+            solutions.append(current_solution.copy())
         else:
             for col in range(n):
                 current_position = (row, col)
-                is_safe = all(not is_attacking(current_position, pos) for pos in current_solution)
-                if is_safe:
+                if all(not is_attacking(current_position, pos) for pos in current_solution):
                     current_solution.append(current_position)
                     build_solution(row + 1, current_solution)
                     current_solution.pop()
@@ -65,7 +61,7 @@ def build_solutions(n):
     return solutions
 
 def print_solutions(solutions):
-    """Prints the solutions in a specific format.
+    """Prints the solutions in the specified format.
 
     Args:
         solutions (list of lists): List of solutions.
@@ -73,7 +69,7 @@ def print_solutions(solutions):
     for solution in solutions:
         print(solution)
 
-if __name__ == "__main__":
+if __name__ == "__main":
     n = get_input()
     solutions = build_solutions(n)
     print_solutions(solutions)
