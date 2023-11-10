@@ -1,5 +1,4 @@
 #!/usr/bin/node
-
 const request = require('request');
 
 const API_URL = 'https://swapi.dev/api';
@@ -11,35 +10,27 @@ if (process.argv.length !== 3) {
 
 const movieId = process.argv[2];
 
-function getRequestPromise(url) {
-  return new Promise((resolve, reject) => {
-    request(url, (err, _, body) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(JSON.parse(body));
-      }
+request(`${API_URL}/films/${movieId}/`, (error, response, body) => {
+  if (error || response.statusCode !== 200) {
+    console.error(`Error: Unable to fetch data for Movie ID ${movieId}`);
+    process.exit(1);
+  }
+
+  const charactersURL = JSON.parse(body).characters;
+  const charactersPromises = charactersURL.map(url => {
+    return new Promise((resolve, reject) => {
+      request(url, (err, _, charactersReqBody) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(JSON.parse(charactersReqBody).name);
+        }
+      });
     });
   });
-}
 
-function getMovieCharacters(movieId) {
-  const movieUrl = `${API_URL}/films/${movieId}/`;
+  Promise.all(charactersPromises)
+    .then(names => console.log(names.join('\n')))
+    .catch(err => console.error(err));
+});
 
-  getRequestPromise(movieUrl)
-    .then(movieData => {
-      const charactersURL = movieData.characters;
-      const charactersPromises = charactersURL.map(url => getRequestPromise(url));
-
-      return Promise.all(charactersPromises);
-    })
-    .then(charactersData => {
-      const characterNames = charactersData.map(data => data.name);
-      console.log(characterNames.join('\n'));
-    })
-    .catch(error => {
-      console.error('Error:', error);
-    });
-}
-
-getMovieCharacters(movieId);
